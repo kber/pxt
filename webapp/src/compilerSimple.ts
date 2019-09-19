@@ -74,8 +74,11 @@ export function emptyCompileResult(): pxtc.CompileResult {
   };
 }
 
-export function compileAsync(code: string): Promise<pxtc.CompileResult> {
+export function compileAsync(code: string, isNative: boolean = false): Promise<pxtc.CompileResult> {
+
   compileOptions.fileSystem['main.ts'] = code;
+  compileOptions.target.isNative = isNative;
+
   return compileCoreAsync(compileOptions as any)
     .then(resp => {
       return ensureApisInfoAsync().then(() => {
@@ -87,7 +90,11 @@ export function compileAsync(code: string): Promise<pxtc.CompileResult> {
       });
     })
     .then(resp => {
-      return getRunOptions(resp);
+      if (isNative) {
+        return getNativeOptions(resp);
+      } {
+        return getRunOptions(resp);
+      }
     })
     .catch(catchUserErrorAndSetDiags(noOpAsync));
 }
@@ -312,6 +319,12 @@ function getRunOptions(res: pxtc.CompileResult, options: any = {}) {
   };
 
   return opts;
+}
+
+function getNativeOptions(res: pxtc.CompileResult, options: any = {}) {
+  return {
+    hex: res.outfiles['binary.hex']
+  };
 }
 
 export function computeUsedParts(resp: any, ignoreBuiltin = false): string[] {
