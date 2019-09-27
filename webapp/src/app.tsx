@@ -1,10 +1,15 @@
 import * as compiler from './compilerSimple';
+import { MICROBIT_BOARD_SIM_INIT_MSG } from './boards/microbit';
 
 export class ProjectView {}
 
 const global: any = window;
 global.compile = function(code: string, isNative: boolean = false) {
   return compiler.compileAsync(code, isNative);
+};
+
+global.init = function() {
+  pxsim.Embed.run(MICROBIT_BOARD_SIM_INIT_MSG);
 };
 
 global.run = function(code: string) {
