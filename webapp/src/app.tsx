@@ -14,8 +14,9 @@ global.init = function() {
 
 global.run = function(code: string) {
   compiler.compileAsync(code).then((opts: any) => {
+    if (!opts.code) throw Error('代码出错啦，请仔细检查代码');
     pxsim.Embed.run(opts);
-  });
+  })
 };
 
 global.hexlify = function(code: string) {
@@ -29,4 +30,21 @@ function linkDownload(content: string) {
   save_link.href = URL.createObjectURL(new Blob([content]));
   save_link.download = 'a.hex';
   save_link.click();
+}
+
+window.addEventListener("message", receiveMessage, false);
+
+function receiveMessage(event: MessageEvent) {
+  let origin = event.origin; // || (<any>event).originalEvent.origin;
+  // TODO: test origins
+
+  let data: any = event.data || {};
+  let type = data.type;
+  if (!type) return;
+  switch (type) {
+    case "microbit-init": global.init(); break;
+    case "microbit-run": global.run(data.code); break;
+    case "microbit-hexlify": global.hexlify(data.code); break;
+    default: break;
+  }
 }
