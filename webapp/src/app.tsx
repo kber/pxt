@@ -43,6 +43,7 @@ function receiveMessage(event: MessageEvent) {
   if (!type) return;
   switch (type) {
     case "microbit-init": global.init(); break;
+    case "microbit-compile": global.compile(data.code); break;
     case "microbit-run": global.run(data.code); break;
     case "microbit-hexlify": global.hexlify(data.code); break;
     default: break;
